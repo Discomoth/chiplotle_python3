@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Read in a data file and plot it using a virtual plotter."""
 from __future__ import print_function

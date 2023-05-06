@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """A simple example that shows how to load existing hpgl code into chiplotle."""
 from __future__ import print_function

@@ -33,6 +33,6 @@ if __name__ == '__main__':
 To run this demo code, you do something like:
 
 > cd chiplotle
-> python ./geometry/shapes/ellipse.py
+> python3 ./geometry/shapes/ellipse.py
 
 

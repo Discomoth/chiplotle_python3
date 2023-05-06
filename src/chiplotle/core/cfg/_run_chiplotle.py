@@ -27,4 +27,4 @@ def _run_chiplotle():
     python_code.append("plotter = plts[0]")
 
     ##                                            '\n' does now work on Windowz!
-    os.system('''python -i -c "%s"''' % ";".join(python_code))
+    os.system('''python3 -i -c "%s"''' % ";".join(python_code))
