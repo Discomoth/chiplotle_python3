@@ -11,7 +11,7 @@ from __future__ import absolute_import
 from builtins import range
 from builtins import open
 from builtins import int
-from collections import Iterable
+from collections.abc import Iterable
 
 from future import standard_library
 
@@ -74,7 +74,13 @@ class _BasePlotter(object):
                     c = c.format
                 else:
                     print(c, type(c))
-                result.append(c)
+                #result.append(c)
+                try:   
+                    result.append(c.encode())
+                except AttributeError:
+                    result.append(c)
+                except Exception as e:
+                    print(e)
             data = b"".join(result)
         else:
             raise TypeError("Unknown type {}, can't write to serial".format(type(data)))
