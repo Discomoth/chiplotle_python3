@@ -116,7 +116,7 @@ If you only have one plotter (or only care to use one plotter) you can get the f
 and save your script as a .py file (see examples/square.py for an example). 
 To use your new program just run it as you would any Python script::
 
-   $ python square.py
+   $ python3 square.py
 
 
 A slightly more sophisticated Python script that draws a random zigzag::

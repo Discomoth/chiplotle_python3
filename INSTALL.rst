@@ -41,7 +41,7 @@ If you don't have  *pip*, follow these steps:
 4. If you're using Linux, Mac OS X or some other flavor of Unix, enter
    the command:: 
       
-      sudo python setup.py install
+      sudo python3 setup.py install
 
    at the shell prompt.
    If you're using Windows, start up a command shell with administrator

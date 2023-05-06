@@ -24,18 +24,27 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("--output", type=str, help="Path to output file")
 parser.add_argument("--view", action="store_true", help="Show plot as well as output?")
-parser.add_argument(
-    "-n", "--pen-count", type=int, default=1, help="How many pens to use?"
-)
+parser.add_argument("-n", "--pen-count", type=int, default=1, help="How many pens to use?")
+parser.add_argument("-c", "--object-count", type=int, default=10, help="How many randomly generated objects?")
+parser.add_argument("-m", "--mode", type=str, default='random', help='Choose the operating mode:\n- random\n- filled-rects\n- rects\n- circles\n- lines\n- shapes')
 
 
 def main(args, width=30000, height=20000, left=0, right=30000, bottom=0, top=20000):
     pen_count = args.pen_count
+    object_count = args.object_count
+    modeArg = args.mode
+
+    pen_id_list = [x + 1 for x in range(pen_count)]
 
     print("width: %d height: %d" % (width, height))
 
     # start in a random spot
-    plot = abstract_masterpiece(top, bottom, left, right, height, width, pen_count)
+    if modeArg == 'random':
+        plot = abstract_masterpiece(top, bottom, left, right, height, width, pen_id_list, object_count)
+    elif modeArg == 'filled-rects':
+        plot = filledRects(top, bottom, left, right, height, width, pen_id_list, object_count)
+    elif modeArg == 'shapes':
+        plot = randomShapes(top, bottom, left, right, height, width, pen_id_list, object_count)
     if args.output is None or args.view:
         io.view(plot)
     if args.output is not None:
@@ -43,10 +52,45 @@ def main(args, width=30000, height=20000, left=0, right=30000, bottom=0, top=200
         io.export(plot, output_name, fmt=extension[1:])
 
 
-def abstract_masterpiece(top, bottom, left, right, height, width, pen_count):
+def filledRects(top, bottom, left, right, height, width, pen_id_list, object_count):
     plot = [PA([random_point(top, bottom, left, right)])]
     pen_id = 1
-    while True:
+    for x in range(object_count):
+
+        plot.append(SP(pen_id))
+        gesture_id = random.randint(0, 1)
+        if gesture_id == 0:
+            feature = random_filled_rect()
+        elif gesture_id == 1:
+            feature = random_pen_move(top, bottom, left, right)
+        plot.extend(feature)
+        pen_id = randomly_switch_pen(pen_id, pen_id_list)
+
+    plot.append(SP(0))
+    return plot
+
+def randomShapes(top, bottom, left, right, height, width, pen_id_list, object_count):
+    plot = [PA([random_point(top, bottom, left, right)])]
+    pen_id = 1
+    for x in range(object_count):
+        plot.append(SP(pen_id))
+        gesture_id = random.randint(0, 1)
+
+        if gesture_id == 0:
+            feature = random_shape(top, bottom, left, right, width, height)
+        elif gesture_id == 1:
+            feature = random_pen_move(top, bottom, left, right)
+        plot.extend(feature)
+
+        pen_id = randomly_switch_pen(pen_id, pen_id_list)
+    plot.append(SP(0))
+    return plot
+
+
+def abstract_masterpiece(top, bottom, left, right, height, width, pen_id_list, object_count):
+    plot = [PA([random_point(top, bottom, left, right)])]
+    pen_id = 1
+    for x in range(object_count):
         plot.append(SP(pen_id))
         gesture_id = random.randint(0, 5)
 
@@ -64,9 +108,7 @@ def abstract_masterpiece(top, bottom, left, right, height, width, pen_count):
             feature = random_pen_move(top, bottom, left, right)
         plot.extend(feature)
 
-        pen_id = randomly_switch_pen(pen_id)
-        if pen_id == pen_count + 1:
-            break
+        pen_id = randomly_switch_pen(pen_id, pen_id_list)
     plot.append(SP(0))
     return plot
 
@@ -150,11 +192,12 @@ def random_pen_move(top, bottom, left, right):
     return feature
 
 
-def randomly_switch_pen(pen_id, probability=0.25):
-    assert probability <= 1.0
-    if random.random() < probability:
-        pen_id += 1
-    return pen_id
+def randomly_switch_pen(pen_id, pen_id_list, prob=0.25):
+    if random.random() <= prob:
+        randomPen = random.randint(pen_id_list[0], pen_id_list[-1])
+    else:
+        return pen_id
+    return randomPen
 
 
 if __name__ == "__main__":

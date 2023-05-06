@@ -29,4 +29,4 @@ def _run_chiplotle_virtual():
     python_code.append("plotter = instantiate_virtual_plotter()")
 
     ##                                            '\n' does now work on Windowz!
-    os.system('''python -i -c "%s"''' % ";".join(python_code))
+    os.system('''python3 -i -c "%s"''' % ";".join(python_code))

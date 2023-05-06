@@ -15,7 +15,7 @@ test: compile
 	tox
 
 compile:
-	python -m compileall $(LIBRARY_DIR) -j $$(nproc)
+	python3 -m compileall $(LIBRARY_DIR) -j $$(nproc)
 
 format:
 	black $(LIBRARY_DIR)
@@ -25,7 +25,7 @@ flake8:
 
 dist: $(SRC_FILES) compile
 	rm -rf dist
-	python setup.py sdist
+	python3 setup.py sdist
 
 upload_to_pypi: dist
 	twine upload dist/*
