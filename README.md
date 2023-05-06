@@ -1,11 +1,5 @@
 # Chiplotle
 
-[![CircleCI Status](https://circleci.com/gh/willprice/chiplotle.svg?style=shield)](https://circleci.com/gh/willprice/chiplotle)
-[![Code coverage Status](https://codecov.io/gh/willprice/chiplotle/branch/master/graph/badge.svg)](https://codecov.io/gh/willprice/chiplotle)
-[![Documentation Status](https://readthedocs.org/projects/chiplotle/badge/?version=latest)](https://chiplotle.readthedocs.io/en/latest/?badge=latest)
-[![PyPI Version](https://badge.fury.io/py/Chiplotle.svg)](https://badge.fury.io/py/Chiplotle)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ecede0d540c64622abab25fd79e8b74c)](https://www.codacy.com/app/will.price94/chiplotle?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=willprice/chiplotle&amp;utm_campaign=Badge_Grade)
-
 Chiplotle is a Python library that implements and extends the HPGL
 (Hewlett-Packard Graphics Language) plotter control language. It
 supports all the standard HPGL commands as well as our own more complex
@@ -23,3 +17,16 @@ Chiplotle is written and maintained by Victor Adan and Douglas Repetto.
 
 Find all there is to know about Chiplotle at:
 http://music.columbia.edu/cmc/chiplotle
+
+# What is different from vanilla Chiplotle?
+
+This fork was created from a fork that was in the process of being refactored to function on Python 3 (not sure which version, it was worked on years ago).
+I took this work that had been done and got it to the point of mostly working with the pen plotters I possess. Thank you to willprice for the work they had done on it! 
+
+# What is the goal?
+
+I hope to use this module to support a program I am constucting to allow interactive, straight forward control of pen plotters. The original goal was for it to be used exclusively on vintage pen plotters, but I'd like to expand the functionality in the future to other devices such as the AxiDraw series by EvilMadScientist as well as some other obscure plotting techniques such as XY voltage controlled pen plotters. <br>
+<br>
+For whatever reason, these machines facinate me so! I want to help others be able to express themselves and create art without the requirement of being a programmer to control them! <br>
+Feel free to reach out to me, contribute, suggest, test, debug, etc. <br>
+I consider myself a 'junkyard'/fledgeling Python programmer, I'm starting to get the hang of it, but I have a good ways to go to be fully proficient! 
