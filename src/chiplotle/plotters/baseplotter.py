@@ -37,6 +37,9 @@ class _BasePlotter(object):
         self._hpgl = commands
         self._margins = MarginsInterface(self)
         self.maximum_response_wait_time = get_config_value("maximum_response_wait_time")
+        self.rtscts = False
+        self.stopFlag = False
+        self.flowDelay = 0.1
 
         # this is so that we don't pause while preparing and sending
         # full buffers to the plotter. By sending 1/2 buffers we assure
@@ -138,13 +141,35 @@ class _BasePlotter(object):
         return result
 
     def _write_bytes_to_port(self, data):
-        """ Write data to serial port. data is expected to be a string."""
+        """
+        Write data to serial port. data is expected to be a string.
+        Modified to include RTC/CTS control option for faster
+        plotter control (eg. 7550A).
+        """
         self._check_is_bytes(data)
         data = self._filter_unrecognized_commands(data)
         data = self._slice_string_to_buffer_size(data)
-        for chunk in data:
-            self._sleep_while_buffer_full()
-            self._serial_port.write(chunk)
+
+        if self.rtscts:
+            for command in data:
+
+                if self.stopFlag:
+                    break
+
+                # Set the RTS line high
+                self._serial_port.setRTS(True)
+
+                while not self._serial_port.getCTS():
+                    pass
+
+                self._serial_port.write(command)
+                time.sleep(self.flowDelay)
+                self._serial_port.setRTS(False)
+
+        else:
+            for chunk in data:
+                self._sleep_while_buffer_full()
+                self._serial_port.write(chunk)
 
     def _check_is_bytes(self, data):
         if not isinstance(data, bytes):
