@@ -63,30 +63,47 @@ class _BasePlotter(object):
 
     def write(self, data):
         """Public access for writing to serial port.
-         data can be an iterator, a string or an _HPGL. """
+         data can be an iterator, a string or an _HPGL.
+         
+         I'm sorry I made such a mess of this... 
+         """
         ## TODO: remove _HPGL from this list...
+
         if isinstance(data, _HPGL):
-            data = data.format
+            print('Type: HPGL')
+            data = data.format.decode("ascii")
+
         elif isinstance(data, bytes):
+            print('Type: bytes')
+            data = data.decode("ascii")
             pass
+
         elif isinstance(data, Iterable):
+            print('Type: HPGL')
             result = []
             for c in data:
+
                 ## TODO: remove _HPGL from this list...
                 if isinstance(c, (_Shape, _HPGL)):
-                    c = c.format
+                    c = c.format.decode('ascii')
                 else:
                     print(c, type(c))
                 #result.append(c)
                 try:   
-                    result.append(c.encode())
-                except AttributeError:
+                    # Moved encoding step to _write_bytes_to_port()
+                    #result.append(c.encode())
                     result.append(c)
+                #except AttributeError:
+                #    result.append(c)
                 except Exception as e:
                     print(e)
-            data = b"".join(result)
+
+            data = result
+            #data = b"".join(result)
+
         else:
             raise TypeError("Unknown type {}, can't write to serial".format(type(data)))
+            
         self._write_bytes_to_port(data)
 
     def write_file(self, filename):
