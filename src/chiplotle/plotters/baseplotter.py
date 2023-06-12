@@ -156,6 +156,39 @@ class _BasePlotter(object):
         for i in range(count):
             result.append(data[i * self.buffer_size : (i + 1) * self.buffer_size])
         return result
+    
+    def _slice_string_to_small_commands(self, data):
+        '''
+        Cutting the commands into 1/2 the buffer size would work in an
+        ideal situation but the CTS state would be False only after 
+        writing ~3/2 of the buffer.
+        This function slices the command string to individual commands,
+        allowing the CTS/RTS transactions to be more efficient and 
+        functional... ;)
+        Derived from the old inkscapeCommand_downsizer function.
+        '''
+        finalList = []
+
+        for command in data:
+            commandList = self.commandDownsizer_inkscape(command)
+            finalList.extend(commandList)
+
+        return(finalList)
+    
+    def commandDownsizer_inkscape(self, command):
+
+        returnList = []
+
+        commandInstruction = command[0:2]
+        coordinates = command.strip(commandInstruction).strip(';').split(',')
+        coordinatePairs = zip(coordinates[0::2], coordinates[1::2])
+
+        for pair in coordinatePairs:
+            returnList.append(commandInstruction + pair[0] + ',' + pair[1] + ';')
+        
+        return(returnList)
+
+
 
     def _write_bytes_to_port(self, data):
         """
