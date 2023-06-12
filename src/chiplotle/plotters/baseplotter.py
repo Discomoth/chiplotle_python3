@@ -217,6 +217,7 @@ class _BasePlotter(object):
             print('Parsing complete!')
 
             #self._check_is_bytes(data)
+            # TODO Implement unrecognized command filtering!
             #data = self._filter_unrecognized_commands(data)
 
             print('Post Parsing Data: ' + str(data))
@@ -252,17 +253,32 @@ class _BasePlotter(object):
                     
 
         else:
-            if not isinstance(data, bytes):
+            print('Chiplotle flow control mode!')
+            print('Preparsing Data: ' + str(data))
+            
+            if isinstance(data, list):
                 # Parse list into bytestring
                 data = [x.encode() for x in data]
-                data = b"".join(data)
+
+            elif isinstance(data, str):
+                # Single command segments are converted into bytes here
+                data = [data.encode()]
 
             elif isinstance(data, bytes):
-                data = self._filter_unrecognized_commands(data)
-                data = self._slice_string_to_buffer_size(data)
-                for chunk in data:
-                    self._sleep_while_buffer_full()
-                    self._serial_port.write(chunk)
+                data = [data]
+                
+            print('Parsing complete!')
+
+            # Join into a single bitstring
+            data = b"".join(data)
+
+            print('Post Parsing Data: ' + str(data))
+
+            data = self._filter_unrecognized_commands(data)
+            data = self._slice_string_to_buffer_size(data)
+            for chunk in data:
+                self._sleep_while_buffer_full()
+                self._serial_port.write(chunk)
 
     def _check_is_bytes(self, data):
         if not isinstance(data, bytes):
