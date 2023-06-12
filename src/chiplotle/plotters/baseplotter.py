@@ -193,33 +193,76 @@ class _BasePlotter(object):
     def _write_bytes_to_port(self, data):
         """
         Write data to serial port. data is expected to be a string.
+
         Modified to include RTC/CTS control option for faster
         plotter control (eg. 7550A).
         """
-        self._check_is_bytes(data)
-        data = self._filter_unrecognized_commands(data)
-        data = self._slice_string_to_buffer_size(data)
-
         if self.rtscts:
+            print('RTS/CTS Mode')
+            print('Preparsing Data: ' + str(data))
+            
+            if isinstance(data, list):
+                # Cut up the data into single command segments
+                data = self._slice_string_to_small_commands(data)
+                # Parse list into bytestring
+                data = [x.encode() for x in data]
+
+            elif isinstance(data, str):
+                # Single command segments are converted into bytes here
+                data = [data.encode()]
+
+            elif isinstance(data, bytes):
+                data = [data]
+                
+            print('Parsing complete!')
+
+            #self._check_is_bytes(data)
+            #data = self._filter_unrecognized_commands(data)
+
+            print('Post Parsing Data: ' + str(data))
+
             for command in data:
 
                 if self.stopFlag:
+                    # Clean exit path for canceling mid plot.
+                    self._serial_port.setRTS(True)
+
+                    while not self._serial_port.getCTS():
+                        pass
+
+                    self._serial_port.write(self._hpgl.IN().format().encode())
+                    time.sleep(self.flowDelay)
+                    self._serial_port.setRTS(False)
                     break
 
-                # Set the RTS line high
-                self._serial_port.setRTS(True)
+                else:
 
-                while not self._serial_port.getCTS():
-                    pass
+                    # Set the Ready To Send (RTS) line high
+                    self._serial_port.setRTS(True)
+                    # If the plotter Clear To Send (CTS) line is low, wait
+                    while not self._serial_port.getCTS():
+                        pass
 
-                self._serial_port.write(command)
-                time.sleep(self.flowDelay)
-                self._serial_port.setRTS(False)
+                    # Once CTS is high, send the next chunk of data
+                    self._serial_port.write(command)
+                    # Wait for data to be sent
+                    time.sleep(self.flowDelay)
+                    # Set RTS line low to end transaction cycle
+                    self._serial_port.setRTS(False)
+                    
 
         else:
-            for chunk in data:
-                self._sleep_while_buffer_full()
-                self._serial_port.write(chunk)
+            if not isinstance(data, bytes):
+                # Parse list into bytestring
+                data = [x.encode() for x in data]
+                data = b"".join(data)
+
+            elif isinstance(data, bytes):
+                data = self._filter_unrecognized_commands(data)
+                data = self._slice_string_to_buffer_size(data)
+                for chunk in data:
+                    self._sleep_while_buffer_full()
+                    self._serial_port.write(chunk)
 
     def _check_is_bytes(self, data):
         if not isinstance(data, bytes):
